@@ -1,7 +1,5 @@
 import csv
-import json
 import click
-import requests
 
 
 # Day => r
@@ -18,16 +16,6 @@ INTERVAL_OPTS = ['1-min', '5-min', '15-min', '30-min', 'Hourly', '2-hour',
 @click.option('--interval', type=click.Choice(INTERVAL_OPTS))
 @click.argument('save_file', type=click.File('w'))
 def get_historical_pricing(day, interval, save_file):
-    # TODO: Remove coinbaseUSD hardcode
-    exchange = 'coinbaseUSD'
-    URL = 'https://bitcoincharts.com/charts/chart.json?m={}&r={}&i={}&m1=10'.format(
-        exchange, day, interval)
-    headers = {'User-Agent': }
-    resp = requests.get(URL, verify=False, headers=headers)
-
-    pricing_raw_data = json.loads(resp.text)
-    resp.close()
-
     fields = ['Timestamp', 'Open', 'Low', 'Close', 'Volume (BTC)',
               'Volume (Currency)', 'Weighted Price']
     save_writer = csv.DictWriter(save_file, fieldnames=fields)

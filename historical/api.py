@@ -29,6 +29,28 @@ class ApiRequestor:
         req = Request(method, url, headers=headers)
         return self.session.prepare_request(req)
 
-    def send_request(self):
-        self.prepare_request('', '', {})
-        return ''
+    def send_request(self, exchange, day, interval):
+        url = self.generate_url(exchange, day, interval)
+        prepped_req = self.prepare_request('GET', url, self._generate_headers())
+        response = self.session.send(prepped_req)
+        return ApiResponse.make(response.status_code, response.text)
+
+
+class ApiResponse:
+
+    def __init__(self, code, data):
+        self.code = code
+        self.data = data
+
+    @classmethod
+    def make(cls, code, raw_message):
+        return cls(
+            code,
+            json.loads(raw_message)
+        )
+
+    def is_error(self):
+        return self.code != 200
+
+    def is_success(self):
+        return self.code == 200

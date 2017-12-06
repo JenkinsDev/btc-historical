@@ -1,15 +1,18 @@
 import unittest
 import unittest.mock as mock
 
-from historical.api import ApiRequestor
+from historical.api import ApiRequestor, ApiResponse
 from requests import PreparedRequest
 
 
-class TestApiConnectionPool(unittest.TestCase):
+def mocked_json_loads(*args, **kwargs):
+    return args[0]
+
+
+class TestApiRequestor(unittest.TestCase):
 
     def setUp(self):
         self.expected_url = 'https://bitcoincharts.com/charts/chart.json?m=coinbaseUSD&r=5&i=15-min&m1=10'
-
         self.request_exchange = 'coinbaseUSD'
         self.request_day = '5'
         self.request_interval = '15-min'
@@ -73,15 +76,85 @@ class TestApiConnectionPool(unittest.TestCase):
         api = ApiRequestor()
         url = api.generate_url(
             self.request_exchange, self.request_day, self.request_interval)
-        self.assertEqual(url, expected_url)
+        self.assertEqual(url, self.expected_url)
 
     def test_send_request_exists(self):
         api = ApiRequestor()
         self.assertIsNotNone(api.send_request)
 
-    def test_send_request_calls_prepare_request(self):
-        api = ApiRequestor()
-        with mock.patch.object(api, 'prepare_request',
-                               wraps=api.prepare_request) as monkey:
-            api.send_request()
-            monkey.assert_called()
+
+class TestApiResponse(unittest.TestCase):
+
+    def setUp(self):
+        self.request_code = 200
+        self.request_status = 'status'
+        self.request_data = 'request message'
+
+    def tearDown(self):
+        pass
+
+    def test_has_code(self):
+        api_response = ApiResponse(
+            self.request_code,
+            None,
+            None
+        )
+        self.assertIsNotNone(api_response.code)
+        self.assertEqual(api_response.code, self.request_code)
+
+    def test_has_status(self):
+        api_response = ApiResponse(
+            self.request_code,
+            self.request_status,
+            None
+        )
+        self.assertIsNotNone(api_response.status)
+        self.assertEqual(api_response.status, self.request_status)
+
+    def test_has_message(self):
+        api_response = ApiResponse(
+            self.request_code,
+            self.request_status,
+            self.request_data
+        )
+        self.assertIsNotNone(api_response.data)
+        self.assertEqual(api_response.data, self.request_data)
+
+    def test_is_error_returns_true_if_not_200_code(self):
+        api_response = ApiResponse(
+            400,
+            self.request_status,
+            self.request_data
+        )
+        self.assertTrue(api_response.is_error())
+
+        api_response2 = ApiResponse(
+            200,
+            self.request_status,
+            self.request_data
+        )
+        self.assertFalse(api_response2.is_error())
+
+    def test_is_success_returns_true_if_200_code(self):
+        api_response = ApiResponse(
+            400,
+            self.request_status,
+            self.request_data
+        )
+        self.assertFalse(api_response.is_success())
+
+        api_response2 = ApiResponse(
+            200,
+            self.request_status,
+            self.request_data
+        )
+        self.assertTrue(api_response2.is_success())
+
+    @mock.patch('historical.api.json.loads', side_effect=mocked_json_loads)
+    def test_make_calls_json_loads_on_raw_message(self, json_loads):
+        ApiResponse.make(
+            self.request_code,
+            self.request_status,
+            '[[]]'
+        )
+        json_loads.assert_called_with('[[]]')
