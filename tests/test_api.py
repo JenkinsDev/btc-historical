@@ -97,24 +97,13 @@ class TestApiResponse(unittest.TestCase):
         api_response = ApiResponse(
             self.request_code,
             None,
-            None
         )
         self.assertIsNotNone(api_response.code)
         self.assertEqual(api_response.code, self.request_code)
 
-    def test_has_status(self):
-        api_response = ApiResponse(
-            self.request_code,
-            self.request_status,
-            None
-        )
-        self.assertIsNotNone(api_response.status)
-        self.assertEqual(api_response.status, self.request_status)
-
     def test_has_message(self):
         api_response = ApiResponse(
             self.request_code,
-            self.request_status,
             self.request_data
         )
         self.assertIsNotNone(api_response.data)
@@ -123,14 +112,12 @@ class TestApiResponse(unittest.TestCase):
     def test_is_error_returns_true_if_not_200_code(self):
         api_response = ApiResponse(
             400,
-            self.request_status,
             self.request_data
         )
         self.assertTrue(api_response.is_error())
 
         api_response2 = ApiResponse(
             200,
-            self.request_status,
             self.request_data
         )
         self.assertFalse(api_response2.is_error())
@@ -138,14 +125,12 @@ class TestApiResponse(unittest.TestCase):
     def test_is_success_returns_true_if_200_code(self):
         api_response = ApiResponse(
             400,
-            self.request_status,
             self.request_data
         )
         self.assertFalse(api_response.is_success())
 
         api_response2 = ApiResponse(
             200,
-            self.request_status,
             self.request_data
         )
         self.assertTrue(api_response2.is_success())
@@ -154,7 +139,6 @@ class TestApiResponse(unittest.TestCase):
     def test_make_calls_json_loads_on_raw_message(self, json_loads):
         ApiResponse.make(
             self.request_code,
-            self.request_status,
             '[[]]'
         )
         json_loads.assert_called_with('[[]]')
