@@ -44,10 +44,11 @@ class ApiResponse:
 
     @classmethod
     def make(cls, code, raw_message):
-        return cls(
-            code,
-            json.loads(raw_message)
-        )
+        fields = ['Timestamp', 'Open', 'Low', 'Close', 'Volume (BTC)',
+                  'Volume (Currency)', 'Weighted Price']
+        raw_data = json.loads(raw_message)
+        data = [dict(zip(fields, datum)) for datum in raw_data]
+        return cls(code, data)
 
     def is_error(self):
         return self.code != 200
