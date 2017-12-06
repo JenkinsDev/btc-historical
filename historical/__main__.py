@@ -1,6 +1,7 @@
 import csv
 import click
 
+from datetime import datetime
 from api import ApiRequestor
 from export import to_csv
 
@@ -21,6 +22,12 @@ INTERVAL_OPTS = ['1-min', '5-min', '15-min', '30-min', 'Hourly', '2-hour',
 def get_historical_pricing(day, interval, save_file):
     api = ApiRequestor()
     response = api.send_request('coinbaseUSD', day, interval)
+
+    # Dirty but whatever, for now
+    for ind, datum in enumerate(response.data):
+        dt = datetime.fromtimestamp(response.data[ind]['Timestamp'])
+        response.data[ind]['Datetime'] = dt.strftime('%Y-%m-%d %H:%M:%S')
+
     to_csv(save_file, response.data)
 
 
