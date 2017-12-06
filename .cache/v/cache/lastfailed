@@ -1,0 +1,4 @@
+{
+  "tests/test_api.py::TestApiConnectionPool::test_generate_url_returns_formatted_url": true,
+  "tests/test_api.py::TestApiConnectionPool::test_send_request_calls_prepare_request": true
+}

@@ -20,12 +20,11 @@ INTERVAL_OPTS = ['1-min', '5-min', '15-min', '30-min', 'Hourly', '2-hour',
 def get_historical_pricing(day, interval, save_file):
     # TODO: Remove coinbaseUSD hardcode
     exchange = 'coinbaseUSD'
-
     URL = 'https://bitcoincharts.com/charts/chart.json?m={}&r={}&i={}&m1=10'.format(
         exchange, day, interval)
-
-    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+    headers = {'User-Agent': }
     resp = requests.get(URL, verify=False, headers=headers)
+
     pricing_raw_data = json.loads(resp.text)
     resp.close()
 
