@@ -5,7 +5,7 @@ click==6.7
 fake-useragent==0.1.8
 idna==2.6
 pluggy==0.6.0
-py==1.5.2
+py==1.10.0
 pytest==3.3.1
 requests==2.18.4
 six==1.11.0
